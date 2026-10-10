@@ -5,7 +5,7 @@ through the [Git plugin](https://github.com/RunesmithHub/plugin-git), adds a **G
 organizations' repositories, the open repository's pull requests with their reviews and checks, and links to github.com.
 
 Runesmith signs in as its own GitHub App with GitHub's device flow, or reuses the sign-in of the `gh` command. The
-[GitHub documentation](https://runesmithhub.github.io/Runesmith/plugins/github) describes signing in, organizations and settings.
+[GitHub documentation](https://docs.runesmith.dev/plugins/github) describes signing in, organizations and settings.
 
 ## Capabilities
 
@@ -33,7 +33,7 @@ dotnet build src/Runesmith.GitHub -t:InstallPlugin
 ```
 
 `InstallPlugin` copies the built plugin into your Runesmith plugins folder; restart Runesmith to load it. [CONTRIBUTING.md](CONTRIBUTING.md)
-has the checks a change must pass, and the [Runesmith documentation](https://runesmithhub.github.io/Runesmith/) covers writing plugins.
+has the checks a change must pass, and the [Runesmith documentation](https://docs.runesmith.dev/) covers writing plugins.
 
 ## License
 
