@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "runesmith.github",
   "name": "GitHub",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "summary": "Sign in to GitHub, clone from your account and organizations, open links and work with pull requests.",
   "authors": [
     "Dylan de Beer"
@@ -10,7 +10,7 @@
   "license": "Apache-2.0",
   "repository": "https://github.com/RunesmithHub/plugin-github",
   "homepage": "https://docs.runesmith.dev/plugins/github",
-  "runesmithApi": "^0.1.0",
+  "runesmithApi": "^0.1.2",
   "projects": {
     "contracts": "src/Runesmith.GitHub.Contracts/Runesmith.GitHub.Contracts.csproj",
     "implementation": "src/Runesmith.GitHub/Runesmith.GitHub.csproj"
@@ -42,6 +42,7 @@
     "api.github.com",
     "avatars.githubusercontent.com"
   ],
+  "languages": ["en"],
   "icon": "icon.png",
   "categories": [
     "Version control",
