@@ -24,17 +24,17 @@ internal sealed class GitHubCommands(AccountActions actions, OrganizationAccess 
         GitHubIcons.EnsureRegistered();
         var account = actions.Account;
 
-        Add(GitHubAccount.SignInCommand, "Sign In to GitHub...", GitHubIcons.GitHub, "Sign in to GitHub in the browser, or with the GitHub CLI or a token",
+        Add(GitHubAccount.SignInCommand, Strings.CommandSignIn, GitHubIcons.GitHub, Strings.CommandSignInDescription,
             _ => actions.SignInAsync(), _ => !account.IsSignedIn, 0);
-        Add(ManageAccess, "Manage GitHub Access...", "shield", "Choose which repositories and organizations Runesmith may use",
+        Add(ManageAccess, Strings.CommandManageAccess, "shield", Strings.CommandManageAccessDescription,
             _ =>
             {
                 actions.ManageAccess();
                 return Task.CompletedTask;
             }, _ => account.IsSignedIn && account.Kind != GitHubSignInKind.Cli, 1);
-        Add(AddOrganization, "Add GitHub Organization...", GitHubIcons.Building, "Let Runesmith use the repositories of another organization, by installing the GitHub App there",
+        Add(AddOrganization, Strings.CommandAddOrganization, GitHubIcons.Building, Strings.CommandAddOrganizationDescription,
             _ => organizations.AddAsync(), _ => organizations.CanAdd, 2);
-        Add(SignOut, "Sign Out of GitHub", GitHubIcons.LogOut, "Forget the GitHub sign-in and delete its tokens", _ => actions.SignOutAsync(), _ => account.IsSignedIn, 3);
+        Add(SignOut, Strings.CommandSignOut, GitHubIcons.LogOut, Strings.CommandSignOutDescription, _ => actions.SignOutAsync(), _ => account.IsSignedIn, 3);
 
         void Add(string id, string title, string icon, string description, Func<object?, Task> execute, Func<object?, bool> canExecute, int order)
         {

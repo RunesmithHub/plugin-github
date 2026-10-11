@@ -163,7 +163,7 @@ internal sealed class GitHubAccount : IGitHubTokenSource, IDisposable
     public async Task<GitHubUser> SignInWithCliAsync(CancellationToken cancellationToken)
     {
         var token = await GitHubCli.GetTokenAsync(cancellationToken).ConfigureAwait(false)
-            ?? throw new GitHubException(GitHubFailure.Unauthorized, "The GitHub CLI is not signed in. Run gh auth login in a terminal first.");
+            ?? throw new GitHubException(GitHubFailure.Unauthorized, Strings.CliNotSignedIn);
         var user = await Client.GetUserAsync(token, cancellationToken).ConfigureAwait(false);
         cliToken = (token, time.GetUtcNow());
         await SaveAsync(new StoredSession(GitHubSignInKind.Cli, user.Login, user.Name, user.AvatarUrl, null, null, null, null), cancellationToken).ConfigureAwait(false);
@@ -218,7 +218,7 @@ internal sealed class GitHubAccount : IGitHubTokenSource, IDisposable
             return;
 
         var kind = session.Kind;
-        _ = ExpireAsync(kind == GitHubSignInKind.Cli ? "The GitHub CLI's sign-in no longer works. Sign in to GitHub again." : "GitHub no longer accepts the sign-in. Sign in to GitHub again.");
+        _ = ExpireAsync(kind == GitHubSignInKind.Cli ? Strings.CliSignInBroken : Strings.SignInRefused);
     }
 
     private async Task<string?> RefreshAsync(CancellationToken cancellationToken)
@@ -269,7 +269,7 @@ internal sealed class GitHubAccount : IGitHubTokenSource, IDisposable
             gate.Release();
         }
 
-        await ExpireAsync("The GitHub sign-in expired. Sign in to GitHub again.").ConfigureAwait(false);
+        await ExpireAsync(Strings.SignInExpired).ConfigureAwait(false);
         return null;
     }
 
@@ -289,7 +289,7 @@ internal sealed class GitHubAccount : IGitHubTokenSource, IDisposable
         }
 
         RaiseChanged();
-        notifications?.Notify(NotificationKind.Warning, "Signed out of GitHub", message, commands is null ? null : "Sign In",
+        notifications?.Notify(NotificationKind.Warning, Strings.SignedOut, message, commands is null ? null : Strings.SignIn,
             commands is null ? null : () => _ = commands.Value.ExecuteAsync(SignInCommand));
     }
 

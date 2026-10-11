@@ -77,7 +77,7 @@ internal sealed class OrganizationAccess
         {
             var added = await installReturn.ReturnAsync(CancellationToken.None);
             if (InstallReturn.Announcement(added) is { } announcement)
-                actions.Notifications?.Notify(NotificationKind.Success, announcement, "Its repositories are in the clone dialog now.");
+                actions.Notifications?.Notify(NotificationKind.Success, announcement, Strings.OrganizationAddedMessage);
         }
         catch (GitHubException)
         {

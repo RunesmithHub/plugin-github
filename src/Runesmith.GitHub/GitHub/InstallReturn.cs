@@ -55,8 +55,8 @@ internal sealed class InstallReturn(GitHubInstallations installations, TimeProvi
         return names.Count switch
         {
             0 => null,
-            1 => $"Runesmith can now use repositories of {names[0]}",
-            _ => $"Runesmith can now use repositories of {string.Join(", ", names[..^1])} and {names[^1]}",
+            1 => Strings.OrganizationAdded(names[0]),
+            _ => Strings.OrganizationsAdded(names: string.Join(", ", names[..^1]), last: names[^1]),
         };
     }
 }

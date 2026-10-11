@@ -73,12 +73,12 @@ internal sealed class AccountWidget : Button
         if (account.User is { } user)
         {
             Content = new Avatar(avatars, user.Login, user.AvatarUrl, 20);
-            ToolTip.SetTip(this, $"GitHub: {user.Login}");
+            ToolTip.SetTip(this, Strings.WidgetTip(user.Login));
         }
         else
         {
             Content = new SymbolIcon { Data = GitHubIcons.Get(GitHubIcons.GitHub), Size = 16 };
-            ToolTip.SetTip(this, "Sign in to GitHub");
+            ToolTip.SetTip(this, Strings.SignInToGithub);
         }
     }
 
@@ -101,10 +101,10 @@ internal sealed class AccountWidget : Button
         var login = Label("@" + user.Login, "TextMutedBrush", 12);
         var how = Label(account.Kind switch
         {
-            GitHubSignInKind.Cli => "Signed in with the GitHub CLI",
-            GitHubSignInKind.PersonalToken => "Signed in with a personal access token",
-            _ when account.App.Source == GitHubAppSource.Settings => "Signed in with your own GitHub App",
-            _ => "Signed in with Runesmith's GitHub App",
+            GitHubSignInKind.Cli => Strings.SignedInWithCli,
+            GitHubSignInKind.PersonalToken => Strings.SignedInWithToken,
+            _ when account.App.Source == GitHubAppSource.Settings => Strings.SignedInWithOwnApp,
+            _ => Strings.SignedInWithApp,
         }, "TextMutedBrush", 11);
         var text = new StackPanel { Spacing = 1, VerticalAlignment = VerticalAlignment.Center, Children = { name, login, how } };
         var header = new Grid { ColumnDefinitions = new ColumnDefinitions("Auto,12,*"), Margin = new Thickness(10, 8, 16, 10), Children = { new Avatar(avatars, user.Login, user.AvatarUrl, 40), text } };
@@ -112,14 +112,14 @@ internal sealed class AccountWidget : Button
 
         var card = new StackPanel { MinWidth = 260, Children = { header, Divider(new Thickness(0, 0, 0, 4)) } };
         if (account.Kind != GitHubSignInKind.Cli)
-            card.Children.Add(Row(Icons.Shield, account.Kind == GitHubSignInKind.App ? "Manage Access..." : "Manage Tokens...", actions.ManageAccess));
-        card.Children.Add(Row(GitHubIcons.Get(GitHubIcons.GitHub), "Open Profile on GitHub", () => actions.OpenUrl(new Uri($"https://github.com/{Uri.EscapeDataString(user.Login)}"))));
+            card.Children.Add(Row(Icons.Shield, account.Kind == GitHubSignInKind.App ? Strings.ManageAccessEllipsis : Strings.ManageTokens, actions.ManageAccess));
+        card.Children.Add(Row(GitHubIcons.Get(GitHubIcons.GitHub), Strings.OpenProfile, () => actions.OpenUrl(new Uri($"https://github.com/{Uri.EscapeDataString(user.Login)}"))));
         if (commands is not null)
-            card.Children.Add(Row(Icons.FolderPlus, "Clone Repository...", () => _ = commands.ExecuteAsync(CommandIds.CloneRepository)));
+            card.Children.Add(Row(Icons.FolderPlus, Strings.CloneRepository, () => _ = commands.ExecuteAsync(CommandIds.CloneRepository)));
         if (account.Kind == GitHubSignInKind.App)
             card.Children.Add(Organizations());
         card.Children.Add(Divider(new Thickness(0, 4)));
-        card.Children.Add(Row(GitHubIcons.Get(GitHubIcons.LogOut), "Sign Out", () => _ = actions.SignOutAsync()));
+        card.Children.Add(Row(GitHubIcons.Get(GitHubIcons.LogOut), Strings.SignOut, () => _ = actions.SignOutAsync()));
         return card;
     }
 
@@ -127,14 +127,14 @@ internal sealed class AccountWidget : Button
     private StackPanel Organizations()
     {
         var list = new StackPanel();
-        var heading = Label("Organizations", "TextMutedBrush", 11, FontWeight.SemiBold);
+        var heading = Label(Strings.Organizations, "TextMutedBrush", 11, FontWeight.SemiBold);
         heading.Margin = new Thickness(10, 4, 10, 4);
         var section = new StackPanel { Children = { Divider(new Thickness(0, 4)), heading, list } };
         if (organizations.Installations.Current is { } current)
             Fill(current);
         _ = ReloadAsync();
         if (organizations.CanAdd)
-            section.Children.Add(Row(GitHubIcons.Get(GitHubIcons.Building), "Add an organization...", () => _ = organizations.AddAsync()));
+            section.Children.Add(Row(GitHubIcons.Get(GitHubIcons.Building), Strings.AddOrganizationEllipsis, () => _ = organizations.AddAsync()));
         return section;
 
         async Task ReloadAsync()
@@ -159,13 +159,13 @@ internal sealed class AccountWidget : Button
     private Grid OrganizationRow(InstallationRow row)
     {
         var text = new StackPanel { VerticalAlignment = VerticalAlignment.Center, Children = { Label(row.Login), Label(row.Scope, "TextMutedBrush", 11) } };
-        var configure = Link("Configure", () =>
+        var configure = Link(Strings.Configure, () =>
         {
             flyout.Hide();
             organizations.Configure(row);
         });
         configure.VerticalAlignment = VerticalAlignment.Center;
-        ToolTip.SetTip(configure, $"Choose which repositories of {row.Login} Runesmith may use, on GitHub");
+        ToolTip.SetTip(configure, Strings.ConfigureTip(row.Login));
         var grid = new Grid
         {
             ColumnDefinitions = new ColumnDefinitions("Auto,10,*,8,Auto"),

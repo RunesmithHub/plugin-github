@@ -29,7 +29,7 @@ internal sealed class AccountActions(
     {
         if (dialogs is null)
         {
-            notifications?.Notify(NotificationKind.Error, "Signing in needs a newer Runesmith", "This version of Runesmith does not let plugins show dialogs.");
+            notifications?.Notify(NotificationKind.Error, Strings.SignInNeedsDialogs, Strings.SignInNeedsDialogsMessage);
             return false;
         }
 
@@ -37,9 +37,9 @@ internal sealed class AccountActions(
             return account.IsSignedIn;
 
         var isApp = account.Kind == GitHubSignInKind.App;
-        notifications?.Notify(NotificationKind.Success, $"Signed in to GitHub as {user.Login}",
-            isApp ? "Choose the repositories and organizations Runesmith may use with Manage Access." : null,
-            isApp ? "Manage Access" : null, isApp ? ManageAccess : null);
+        notifications?.Notify(NotificationKind.Success, Strings.SignedInAs(user.Login),
+            isApp ? Strings.SignedInMessage : null,
+            isApp ? Strings.ManageAccess : null, isApp ? ManageAccess : null);
         return true;
     }
 
@@ -56,8 +56,8 @@ internal sealed class AccountActions(
         if (account.User is not { } user)
             return;
 
-        var confirmed = dialogs is null || await dialogs.ConfirmAsync("Sign out of GitHub?",
-            $"Runesmith forgets the sign-in of {user.Login}. Cloning and pushing to github.com then use your own Git setup.", "Sign Out", isDestructive: true);
+        var confirmed = dialogs is null || await dialogs.ConfirmAsync(Strings.SignOutTitle,
+            Strings.SignOutMessage(user.Login), Strings.SignOut, isDestructive: true);
         if (confirmed)
             await account.SignOutAsync();
     }
@@ -74,7 +74,7 @@ internal sealed class AccountActions(
         if (launcher is not null)
             launcher.OpenUrl(url);
         else
-            notifications?.Notify(NotificationKind.Info, "Open this address in a browser", url.AbsoluteUri);
+            notifications?.Notify(NotificationKind.Info, Strings.OpenAddressInBrowser, url.AbsoluteUri);
     }
 
     private void OpenSettings()

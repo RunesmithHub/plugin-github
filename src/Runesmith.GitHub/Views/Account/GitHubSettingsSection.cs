@@ -125,9 +125,9 @@ internal sealed class GitHubAccountCard : AccountCard
     {
         var how = Account.Kind switch
         {
-            GitHubSignInKind.Cli => "Signed in with the GitHub CLI",
-            GitHubSignInKind.PersonalToken => "Signed in with a personal access token",
-            _ => "Signed in with the GitHub App",
+            GitHubSignInKind.Cli => Strings.SignedInWithCli,
+            GitHubSignInKind.PersonalToken => Strings.SignedInWithToken,
+            _ => Strings.SignedInWithTheApp,
         };
         var text = new StackPanel
         {
@@ -138,12 +138,12 @@ internal sealed class GitHubAccountCard : AccountCard
         var buttons = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8, VerticalAlignment = VerticalAlignment.Center };
         if (Account.Kind != GitHubSignInKind.Cli)
         {
-            var manage = IconButton(Icons.Shield, Account.Kind == GitHubSignInKind.App ? "Manage Access" : "Manage Tokens", "small");
+            var manage = IconButton(Icons.Shield, Account.Kind == GitHubSignInKind.App ? Strings.ManageAccess : Strings.ManageTokensButton, "small");
             manage.Click += (_, _) => Actions.ManageAccess();
             buttons.Children.Add(manage);
         }
 
-        var signOut = IconButton(GitHubIcons.Get(GitHubIcons.LogOut), "Sign Out", "small");
+        var signOut = IconButton(GitHubIcons.Get(GitHubIcons.LogOut), Strings.SignOut, "small");
         signOut.Click += (_, _) => _ = Actions.SignOutAsync();
         buttons.Children.Add(signOut);
         return Row(new Avatar(avatars, user.Login, user.AvatarUrl, 40), text, buttons);
@@ -157,25 +157,25 @@ internal sealed class GitHubAccountCard : AccountCard
             VerticalAlignment = VerticalAlignment.Center,
             Children =
             {
-                Label("Not signed in", weight: FontWeight.SemiBold),
-                Label("Sign in to clone from your account and organizations, push to github.com and see pull requests.", "TextMutedBrush", 12, wrap: true),
+                Label(Strings.NotSignedIn, weight: FontWeight.SemiBold),
+                Label(Strings.NotSignedInHint, "TextMutedBrush", 12, wrap: true),
             },
         };
-        var signIn = IconButton(GitHubIcons.Get(GitHubIcons.GitHub), "Sign in to GitHub", "accent", "small");
+        var signIn = IconButton(GitHubIcons.Get(GitHubIcons.GitHub), Strings.SignInToGithub, "accent", "small");
         signIn.Click += (_, _) => _ = Actions.SignInAsync();
 
         var hasCli = GitHubCli.IsInstalled();
-        var cli = Link("Use the GitHub CLI's sign-in", () => _ = Actions.SignInAsync(SignInStart.Cli));
+        var cli = Link(Strings.UseCli, () => _ = Actions.SignInAsync(SignInStart.Cli));
         cli.IsEnabled = hasCli;
         if (!hasCli)
-            ToolTip.SetTip(cli, "Install the GitHub CLI, gh, and run gh auth login to use this.");
-        var token = Link("Sign in with a token", () => _ = Actions.SignInAsync(SignInStart.Token));
+            ToolTip.SetTip(cli, Strings.UseCliMissing);
+        var token = Link(Strings.UseToken, () => _ = Actions.SignInAsync(SignInStart.Token));
         var others = new StackPanel
         {
             Orientation = Orientation.Horizontal,
             Spacing = 4,
             Margin = new Thickness(52, -6, 0, 0),
-            Children = { Label("Or:", "TextMutedBrush", 12), cli, token },
+            Children = { Label(Strings.OrLabel, "TextMutedBrush", 12), cli, token },
         };
         others.Children[0].VerticalAlignment = VerticalAlignment.Center;
 
@@ -189,21 +189,21 @@ internal sealed class GitHubAccountCard : AccountCard
         var app = Account.App;
         if (app.Source == GitHubAppSource.Shipped)
         {
-            return Row(Centered(Icon(Icons.CheckCircle, 16, "SuccessBrush")), Text($"Signing in with {app.App?.Name ?? "Runesmith's GitHub App"}",
-                "Runesmith's own GitHub App, so there is nothing to register. You choose which repositories and organizations it may use."), new Panel());
+            return Row(Centered(Icon(Icons.CheckCircle, 16, "SuccessBrush")), Text(Strings.AppSigningInWith(app.App?.Name ?? Strings.RunesmithApp),
+                Strings.AppBuiltInHint), new Panel());
         }
 
         if (app.Source == GitHubAppSource.Settings)
         {
-            return Row(Centered(Icon(Icons.CheckCircle, 16, "SuccessBrush")), Text("Signing in with your own GitHub App",
-                $"The app with client ID {app.ClientId}, from Client ID below. Sign in again after changing it."), new Panel());
+            return Row(Centered(Icon(Icons.CheckCircle, 16, "SuccessBrush")), Text(Strings.AppOwn,
+                Strings.AppOwnHint(app.ClientId)), new Panel());
         }
 
-        var setup = Text("No GitHub App set up",
-            "Signing in through the browser needs a GitHub App with the device flow turned on. Register one, then put its client ID in Client ID below.");
-        var register = IconButton(Icons.ExternalLink, "Register a GitHub App", "small");
+        var setup = Text(Strings.AppNone,
+            Strings.AppNoneHint);
+        var register = IconButton(Icons.ExternalLink, Strings.RegisterApp, "small");
         register.Click += (_, _) => Actions.OpenUrl(NewAppUri);
-        var guide = Link("How to register it", () => Actions.OpenUrl(RegistrationGuideUri));
+        var guide = Link(Strings.RegisterAppGuide, () => Actions.OpenUrl(RegistrationGuideUri));
         var buttons = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 4, VerticalAlignment = VerticalAlignment.Center, Children = { guide, register } };
         return Row(Centered(Icon(Icons.Info, 16, "TextSecondaryBrush")), setup, buttons);
     }
@@ -220,7 +220,7 @@ internal sealed class GitHubAccountCard : AccountCard
             {
                 Orientation = Orientation.Horizontal,
                 Spacing = 4,
-                Children = { Icon(showAdvanced ? Icons.ChevronDown : Icons.ChevronRight, 12, "TextMutedBrush"), Label("Advanced", "TextSecondaryBrush", 12) },
+                Children = { Icon(showAdvanced ? Icons.ChevronDown : Icons.ChevronRight, 12, "TextMutedBrush"), Label(Strings.Advanced, "TextSecondaryBrush", 12) },
             },
         };
         toggle.Click += (_, _) =>
@@ -233,14 +233,14 @@ internal sealed class GitHubAccountCard : AccountCard
             return panel;
 
         var ownApp = Account.App.Source == GitHubAppSource.Settings;
-        var text = Text("Use your own GitHub App", ownApp
-            ? "Runesmith signs in with the app in Client ID and App name in URLs below instead of its own."
-            : "Forks and companies can sign in with an app of their own: register it, then put its client ID in Client ID below and its name in App name in URLs.");
+        var text = Text(Strings.OwnAppTitle, ownApp
+            ? Strings.OwnAppActive
+            : Strings.OwnAppHint);
         text.Margin = new Thickness(52, 0, 0, 0);
         var actions = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 4, Margin = new Thickness(48, 0, 0, 0) };
         if (ownApp && Account.ShippedApp is not null)
         {
-            var back = IconButton(Icons.Undo, "Back to Runesmith's app", "small");
+            var back = IconButton(Icons.Undo, Strings.OwnAppBack, "small");
             back.Click += (_, _) =>
             {
                 Account.UseShippedApp();
@@ -249,7 +249,7 @@ internal sealed class GitHubAccountCard : AccountCard
             actions.Children.Add(back);
         }
 
-        actions.Children.Add(Link("How to register one", () => Actions.OpenUrl(RegistrationGuideUri)));
+        actions.Children.Add(Link(Strings.RegisterAppGuideOne, () => Actions.OpenUrl(RegistrationGuideUri)));
         panel.Children.Add(text);
         panel.Children.Add(actions);
         return panel;
@@ -280,18 +280,18 @@ internal sealed class RepositoryAccessCard : AccountCard
         if (!IsVisible)
             return;
 
-        var content = new StackPanel { Spacing = 12, Children = { Label("Repository access", weight: FontWeight.SemiBold) } };
+        var content = new StackPanel { Spacing = 12, Children = { Label(Strings.AccessTitle, weight: FontWeight.SemiBold) } };
         Child = content;
         if (Account.Kind != GitHubSignInKind.App)
         {
             content.Children.Add(Label(Account.Kind == GitHubSignInKind.Cli
-                ? "Runesmith uses the repositories the GitHub CLI's sign-in can reach, including those of your organizations. Organization access comes from that sign-in, not from Runesmith."
-                : "Runesmith uses the repositories the token can reach, including those of organizations the token was given access to. Change the token on GitHub to reach more.",
+                ? Strings.AccessCli
+                : Strings.AccessToken,
                 "TextMutedBrush", 12, wrap: true));
             return;
         }
 
-        content.Children.Add(Label("The accounts and organizations the GitHub App is installed on. Runesmith may use only the repositories they give it.", "TextMutedBrush", 12, wrap: true));
+        content.Children.Add(Label(Strings.AccessApp, "TextMutedBrush", 12, wrap: true));
         var list = new StackPanel { Spacing = 10 };
         content.Children.Add(list);
         if (access.Installations.Current is { } current)
@@ -301,7 +301,7 @@ internal sealed class RepositoryAccessCard : AccountCard
 
         if (access.CanAdd)
         {
-            var add = IconButton(Icons.Plus, "Add an organization...", "small");
+            var add = IconButton(Icons.Plus, Strings.AddOrganizationEllipsis, "small");
             add.HorizontalAlignment = HorizontalAlignment.Left;
             add.Click += (_, _) => _ = access.AddAsync();
             content.Children.Add(add);
@@ -312,7 +312,7 @@ internal sealed class RepositoryAccessCard : AccountCard
     {
         var current = ++generation;
         list.Children.Clear();
-        list.Children.Add(Label("Loading...", "TextMutedBrush", 12));
+        list.Children.Add(Label(Strings.Loading, "TextMutedBrush", 12));
         try
         {
             var snapshot = await access.Installations.LoadAsync(CancellationToken.None);
@@ -324,7 +324,7 @@ internal sealed class RepositoryAccessCard : AccountCard
             if (current != generation)
                 return;
 
-            var retry = Link("Try again", () => _ = LoadAsync(list));
+            var retry = Link(Strings.TryAgain, () => _ = LoadAsync(list));
             retry.HorizontalAlignment = HorizontalAlignment.Left;
             list.Children.Clear();
             list.Children.Add(Label(exception.Message, "DangerBrush", 12, wrap: true));
@@ -338,18 +338,18 @@ internal sealed class RepositoryAccessCard : AccountCard
         var rows = snapshot.Rows(Account.User?.Login);
         if (rows.Count == 0)
         {
-            list.Children.Add(Label("The app is not installed anywhere yet. Add your account or an organization to choose repositories.", "TextSecondaryBrush", 12, wrap: true));
+            list.Children.Add(Label(Strings.AccessNone, "TextSecondaryBrush", 12, wrap: true));
             return;
         }
 
         foreach (var row in rows)
         {
-            var kind = string.Equals(row.Login, Account.User?.Login, StringComparison.OrdinalIgnoreCase) ? "Your account" : row.IsOrganization ? "Organization" : "Account";
+            var kind = string.Equals(row.Login, Account.User?.Login, StringComparison.OrdinalIgnoreCase) ? Strings.OwnerYou : row.IsOrganization ? Strings.OwnerOrganization : Strings.OwnerAccount;
             var details = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 6, Children = { Label(kind, "TextMutedBrush", 12), Label("·", "TextDisabledBrush", 12), Label(row.Scope, "TextMutedBrush", 12) } };
             var text = new StackPanel { Spacing = 1, VerticalAlignment = VerticalAlignment.Center, Children = { Label(row.Login, weight: FontWeight.Medium), details } };
-            var configure = IconButton(Icons.Settings, "Configure", "small");
+            var configure = IconButton(Icons.Settings, Strings.Configure, "small");
             configure.VerticalAlignment = VerticalAlignment.Center;
-            ToolTip.SetTip(configure, $"Choose which repositories of {row.Login} Runesmith may use, on GitHub");
+            ToolTip.SetTip(configure, Strings.ConfigureTip(row.Login));
             configure.Click += (_, _) => access.Configure(row);
             var avatar = new Avatar(avatars, row.Login, row.AvatarUrl, 32, row.IsOrganization) { Margin = new Thickness(4, 0) };
             list.Children.Add(Row(avatar, text, configure));

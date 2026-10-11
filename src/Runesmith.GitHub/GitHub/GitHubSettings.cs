@@ -11,15 +11,9 @@ internal sealed class GitHubSettings : ISettingContributor
     public const string ClientId = "github.clientId";
     public const string AppSlug = "github.appSlug";
 
-    public IEnumerable<SettingDefinition> Settings { get; } =
+    public IEnumerable<SettingDefinition> Settings =>
     [
-        new(ClientId, "Client ID", Category, "")
-        {
-            Description = "The client ID of your own GitHub App, from the app's settings on GitHub; the app needs the device flow turned on. Leave it empty to sign in with Runesmith's app.",
-        },
-        new(AppSlug, "App name in URLs", Category, "")
-        {
-            Description = "Your own app's name as it appears in its address, github.com/apps/<name>, for adding organizations and Manage Access. Used only with Client ID.",
-        },
+        new(ClientId, Strings.SettingClientId, Category, "") { Description = Strings.SettingClientIdDescription },
+        new(AppSlug, Strings.SettingAppSlug, Category, "") { Description = Strings.SettingAppSlugDescription },
     ];
 }

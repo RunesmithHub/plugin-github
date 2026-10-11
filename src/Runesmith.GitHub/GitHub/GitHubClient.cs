@@ -92,9 +92,9 @@ internal sealed partial class GitHubClient(HttpClient http, IGitHubTokenSource t
         var error = result.Errors?.FirstOrDefault();
         throw error?.Type switch
         {
-            "NOT_FOUND" => new GitHubException(GitHubFailure.NotFound, $"GitHub could not find {owner}/{name}, or the sign-in has no access to it."),
-            "FORBIDDEN" => new GitHubException(GitHubFailure.Forbidden, $"The sign-in may not read the pull requests of {owner}/{name}."),
-            _ => new GitHubException(GitHubFailure.Server, error?.Message ?? "GitHub did not return the pull requests."),
+            "NOT_FOUND" => new GitHubException(GitHubFailure.NotFound, Strings.RepositoryNotFound($"{owner}/{name}")),
+            "FORBIDDEN" => new GitHubException(GitHubFailure.Forbidden, Strings.PullRequestsForbidden($"{owner}/{name}")),
+            _ => new GitHubException(GitHubFailure.Server, error?.Message ?? Strings.PullRequestsNotReturned),
         };
     }
 
@@ -159,7 +159,7 @@ internal sealed partial class GitHubClient(HttpClient http, IGitHubTokenSource t
     {
         var explicitToken = token is not null;
         token ??= await tokens.GetAccessTokenAsync(cancellationToken).ConfigureAwait(false)
-            ?? throw new GitHubException(GitHubFailure.Unauthorized, "Sign in to GitHub to continue.");
+            ?? throw new GitHubException(GitHubFailure.Unauthorized, Strings.SignInToContinue);
 
         using var request = new HttpRequestMessage(method, uri) { Content = content };
         AddCommonHeaders(request, "application/vnd.github+json");
@@ -173,11 +173,11 @@ internal sealed partial class GitHubClient(HttpClient http, IGitHubTokenSource t
         }
         catch (HttpRequestException exception)
         {
-            throw new GitHubException(GitHubFailure.Network, "GitHub could not be reached. Check the connection and try again.", inner: exception);
+            throw new GitHubException(GitHubFailure.Network, Strings.GithubUnreachable, inner: exception);
         }
         catch (TaskCanceledException exception) when (!cancellationToken.IsCancellationRequested)
         {
-            throw new GitHubException(GitHubFailure.Network, "GitHub took too long to answer. Try again in a moment.", inner: exception);
+            throw new GitHubException(GitHubFailure.Network, Strings.GithubSlow, inner: exception);
         }
 
         if (response.IsSuccessStatusCode)
@@ -199,23 +199,23 @@ internal sealed partial class GitHubClient(HttpClient http, IGitHubTokenSource t
         var status = response.StatusCode;
 
         if (status == HttpStatusCode.Unauthorized)
-            return new GitHubException(GitHubFailure.Unauthorized, "GitHub no longer accepts this sign-in. Sign in to GitHub again.");
+            return new GitHubException(GitHubFailure.Unauthorized, Strings.SignInRefused);
 
         if (status is HttpStatusCode.Forbidden or HttpStatusCode.TooManyRequests && RateLimitReset(response) is { } reset)
         {
             var local = reset.ToLocalTime().ToString("t", CultureInfo.CurrentCulture);
-            return new GitHubException(GitHubFailure.RateLimited, $"GitHub's rate limit is used up. It resets at {local}.", reset);
+            return new GitHubException(GitHubFailure.RateLimited, Strings.RateLimited(local), reset);
         }
 
         return status switch
         {
             HttpStatusCode.Forbidden => new GitHubException(GitHubFailure.Forbidden, message is { Length: > 0 }
-                ? $"GitHub refused: {message}. Check which repositories Runesmith may use with Manage Access."
-                : "GitHub refused. Check which repositories Runesmith may use with Manage Access."),
-            HttpStatusCode.NotFound => new GitHubException(GitHubFailure.NotFound, "GitHub could not find it, or the sign-in has no access to it."),
+                ? Strings.RefusedReason(message)
+                : Strings.Refused),
+            HttpStatusCode.NotFound => new GitHubException(GitHubFailure.NotFound, Strings.NotFound),
             HttpStatusCode.UnprocessableEntity => new GitHubException(GitHubFailure.Invalid, ValidationMessage(body)),
             _ => new GitHubException(GitHubFailure.Server,
-                FormattableString.Invariant($"GitHub answered with an error ({(int)status}). Try again in a moment.")),
+                Strings.ServerError((int)status)),
         };
     }
 
@@ -236,7 +236,7 @@ internal sealed partial class GitHubClient(HttpClient http, IGitHubTokenSource t
     private static string ValidationMessage(GitHubErrorBody? body)
     {
         var details = body?.Errors?.Select(error => error.Message).OfType<string>().Where(text => text.Length > 0).ToList() ?? [];
-        return details.Count > 0 ? string.Join(" ", details) : body?.Message ?? "GitHub did not accept the request.";
+        return details.Count > 0 ? string.Join(" ", details) : body?.Message ?? Strings.RequestNotAccepted;
     }
 
     private static async Task<GitHubErrorBody?> ReadErrorAsync(HttpResponseMessage response, CancellationToken cancellationToken)
@@ -256,11 +256,11 @@ internal sealed partial class GitHubClient(HttpClient http, IGitHubTokenSource t
         try
         {
             return await response.Content.ReadFromJsonAsync(type, cancellationToken).ConfigureAwait(false)
-                ?? throw new GitHubException(GitHubFailure.Server, "GitHub sent an empty answer.");
+                ?? throw new GitHubException(GitHubFailure.Server, Strings.GithubEmptyAnswer);
         }
         catch (JsonException exception)
         {
-            throw new GitHubException(GitHubFailure.Server, "GitHub sent an answer Runesmith does not understand.", inner: exception);
+            throw new GitHubException(GitHubFailure.Server, Strings.GithubBadAnswer, inner: exception);
         }
     }
 

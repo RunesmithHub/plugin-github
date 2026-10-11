@@ -13,7 +13,7 @@ namespace Runesmith.GitHub.GitHub;
 internal sealed record InstallationRow(string Login, string AvatarUrl, bool IsOrganization, bool AllRepositories, int RepositoryCount, Uri ConfigureUri)
 {
     /// <summary>Gets what the installation covers: "All repositories" or "3 selected".</summary>
-    public string Scope => AllRepositories ? "All repositories" : string.Create(CultureInfo.InvariantCulture, $"{RepositoryCount} selected");
+    public string Scope => AllRepositories ? Strings.ScopeAll : Strings.ScopeSelected(RepositoryCount);
 }
 
 /// <summary>The installations of the GitHub App the signed-in user can reach, with the repositories each one gives.</summary>
