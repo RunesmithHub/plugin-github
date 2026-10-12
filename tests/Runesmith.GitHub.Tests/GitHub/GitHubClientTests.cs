@@ -1,6 +1,6 @@
 using System.Net;
+using Runesmith.Git.Contracts;
 using Runesmith.GitHub.GitHub;
-using Runesmith.Sdk.VersionControl;
 
 namespace Runesmith.GitHub.Tests.GitHub;
 

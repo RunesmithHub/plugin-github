@@ -1,6 +1,6 @@
 using System.Composition;
+using Runesmith.Git.Contracts;
 using Runesmith.GitHub.Views.Account;
-using Runesmith.Sdk.VersionControl;
 
 namespace Runesmith.GitHub.GitHub;
 
