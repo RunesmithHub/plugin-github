@@ -5,7 +5,7 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
 using System.Text.RegularExpressions;
-using Runesmith.Sdk.VersionControl;
+using Runesmith.Git.Contracts;
 
 namespace Runesmith.GitHub.GitHub;
 

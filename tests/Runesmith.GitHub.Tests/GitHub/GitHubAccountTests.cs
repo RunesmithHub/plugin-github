@@ -176,7 +176,7 @@ public sealed class GitHubAccountTests : IDisposable
 
         var credentials = await source.GetAsync(remote, Token);
 
-        Assert.Equal(expected ? new Runesmith.Sdk.VersionControl.GitCredentials("github.com", "x-access-token", "ghp_right") : null, credentials);
+        Assert.Equal(expected ? new Runesmith.Git.Contracts.GitCredentials("github.com", "x-access-token", "ghp_right") : null, credentials);
     }
 
     [Fact]

@@ -1,6 +1,6 @@
 using System.Globalization;
 using System.Text.Json.Serialization;
-using Runesmith.Sdk.VersionControl;
+using Runesmith.Git.Contracts;
 
 namespace Runesmith.GitHub.GitHub;
 

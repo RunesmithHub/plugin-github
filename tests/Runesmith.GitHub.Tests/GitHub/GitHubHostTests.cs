@@ -1,6 +1,6 @@
+using Runesmith.Git.Contracts;
 using Runesmith.GitHub.GitHub;
 using Runesmith.GitHub.Views.Account;
-using Runesmith.Sdk.VersionControl;
 
 namespace Runesmith.GitHub.Tests.GitHub;
 
