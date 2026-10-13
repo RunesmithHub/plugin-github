@@ -6,6 +6,7 @@ using Avalonia.Layout;
 using Avalonia.Media;
 using HammerUI;
 using HammerUI.Controls;
+using Runesmith.Git.Contracts;
 using Runesmith.GitHub.GitHub;
 using Runesmith.Sdk.Commands;
 using Runesmith.Sdk.Shell;
@@ -115,7 +116,7 @@ internal sealed class AccountWidget : Button
             card.Children.Add(Row(Icons.Shield, account.Kind == GitHubSignInKind.App ? Strings.ManageAccessEllipsis : Strings.ManageTokens, actions.ManageAccess));
         card.Children.Add(Row(GitHubIcons.Get(GitHubIcons.GitHub), Strings.OpenProfile, () => actions.OpenUrl(new Uri($"https://github.com/{Uri.EscapeDataString(user.Login)}"))));
         if (commands is not null)
-            card.Children.Add(Row(Icons.FolderPlus, Strings.CloneRepository, () => _ = commands.ExecuteAsync(CommandIds.CloneRepository)));
+            card.Children.Add(Row(Icons.FolderPlus, Strings.CloneRepository, () => _ = commands.ExecuteAsync(GitCommandIds.CloneRepository)));
         if (account.Kind == GitHubSignInKind.App)
             card.Children.Add(Organizations());
         card.Children.Add(Divider(new Thickness(0, 4)));

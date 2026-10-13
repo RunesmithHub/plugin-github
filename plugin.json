@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "runesmith.github",
   "name": "GitHub",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "summary": "Sign in to GitHub, clone from your account and organizations, open links and work with pull requests.",
   "authors": [
     "Dylan de Beer"
@@ -18,7 +18,7 @@
   "dependencies": [
     {
       "id": "runesmith.git",
-      "range": "^0.2.0"
+      "range": "^0.2.1"
     }
   ],
   "capabilities": [
