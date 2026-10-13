@@ -140,7 +140,7 @@ tasks with Cancel.
 | `IDiffService` | `Runesmith.Sdk.Documents` | Opening a side-by-side diff in the editor area |
 | `ISecretStore` | `Runesmith.Sdk.Shell` | Storing tokens in the system's secret store |
 | `ILauncher` | `Runesmith.Sdk.Shell` | Opening a link in the browser and revealing a file |
-| `CommandIds.CloneRepository` | `Runesmith.Sdk.Commands` | The welcome screen's Clone button |
+| `GitCommandIds.CloneRepository` | `Runesmith.Git.Contracts` | Opening the Git plugin's Clone Repository dialog from the account menu |
 | Plugin menus in the main menu | `Runesmith.Sdk.Commands` | The Git menu, after Build |
 | `ContextMenus` and `ContextMenuTarget` | `Runesmith.Sdk.Commands` | The Git groups of the editor's and the Explorer's context menus |
 | `IToolWindowManager.SetAvailable` | `Runesmith.Sdk.ToolWindows` | Hiding the Commit, Git and Pull Requests windows where they do not apply |
